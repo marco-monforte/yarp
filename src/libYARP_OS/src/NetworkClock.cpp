@@ -56,9 +56,12 @@ NetworkClock::~NetworkClock() {
     }
 
     listMutex.unlock();
+    /* Persistent connections some times don't work, so use plain connection
     yarp::os::ContactStyle style;
     style.persistent = true;
     NetworkBase::disconnect(clockName, port.getName(), style);
+    */
+    NetworkBase::disconnect(clockName, port.getName());
 }
 
 
@@ -68,8 +71,9 @@ bool NetworkClock::open(const ConstString& clockSourcePortName, ConstString loca
     port.setReader(*this);
     NestedContact nc(clockSourcePortName);
     clockName = clockSourcePortName;
-    yarp::os::ContactStyle style;
-    style.persistent = true;
+    /* Persistent connections some times don't work, so use plain connection*/
+//     yarp::os::ContactStyle style;
+//     style.persistent = true;
 
     if(localPortName == "")
     {
@@ -96,9 +100,8 @@ bool NetworkClock::open(const ConstString& clockSourcePortName, ConstString loca
     if (nc.getNestedName()=="")
     {
         Contact src = NetworkBase::queryName(clockSourcePortName);
-
-
-        ret = NetworkBase::connect(clockSourcePortName, port.getName(), style);
+//         ret = NetworkBase::connect(clockSourcePortName, port.getName(), style);
+        ret = NetworkBase::connect(clockSourcePortName, port.getName());
 
         if(!src.isValid())
             fprintf(stderr,"Cannot find time port \"%s\"; for a time topic specify \"%s@\"\n", clockSourcePortName.c_str(), clockSourcePortName.c_str());
